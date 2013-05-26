@@ -1,0 +1,117 @@
+.\" -*- nroff -*-
+.TH fntsample 1 @DATE@
+.SH NAME
+fntsample \- PDF and PostScript font samples generator
+\" macros
+.de SAMPLE
+.br
+.RS
+.nf
+.nh
+..
+.de ESAMPLE
+.hy
+.fi
+.RE
+..
+.SH SYNOPSIS
+.B fntsample
+.BI "[ " OPTIONS " ]"
+.BI "\-f " FONT-FILE " \-o " OUTPUT-FILE
+.br
+.B fntsample \-h
+.SH DESCRIPTION
+.B fntsample
+program can be used to generate font samples that show Unicode coverage
+of the font and are similar in appearance to Unicode charts. Samples can be saved
+into PDF (default) or PostScript file.
+.SH OPTIONS
+.B fntsample
+supports the following options.
+.TP
+.BI "\-\-font\-file, \-f " FONT-FILE
+Make samples of 
+.IR FONT-FILE .
+.TP
+.BI "\-\-font\-index, \-n " IDX
+Font index for \fIFONT-FILE\fP specified using \fB\-\-font\-file\fP option.
+Useful for files that contain multiple fonts, like TrueType Collections (.ttc).
+By default font with index 0 is used.
+.TP
+.BI "\-\-output\-file, \-o " OUTPUT-FILE
+Write output to 
+.IR OUTPUT-FILE .
+.TP
+.BI "\-\-other\-font\-file, \-d " OTHER-FONT
+Compare
+.I FONT-FILE
+with
+.IR OTHER-FONT .
+Glyphs added to
+.I FONT-FILE
+will be highlighted.
+.TP
+.BI "\-\-other\-index, \-m " IDX
+Font index for \fIOTHER-FONT\fP specified using \fB\-\-other\-font\-file\fP option.
+.TP
+.BI "\-\-postscript\-output, \-s"
+Use PostScript format for output instead of PDF.
+.TP
+.BI "\-\-svg, \-g"
+Use SVG format for output.
+The generated document contains one page.
+Use range selection options to specify which.
+.TP
+.BI "\-\-print\-outline, \-l"
+Print document outlines data to standard output.
+This data can be used to add outlines (aka bookmarks) to resulting PDF file with \fBpdfoutline\fP program.
+.TP
+.BI "\-\-include\-range, \-i " RANGE
+Show characters in \fIRANGE\fP.
+.TP
+.BI "\-\-exclude\-range, \-x " RANGE
+Do not show characters in \fIRANGE\fP.
+.TP
+.BI "\-\-style, \-t \(dq" STYLE ": " VAL "\(dq"
+Set \fISTYLE\fP to value \fIVAL\fP.
+Run \fBfntsample\fP with option \fB\-\-help\fP to see list of styles and default values.
+.TP
+.BI "\-\-help, \-h"
+Display help text and exit.
+.P
+Parameter \fIRANGE\fP for \fB\-i\fP and \fB\-x\fP can be given as one integer or a pair of
+integers delimited by minus sign (\-).
+Integers can be specified in decimal, hexadecimal (0x...) or octal (0...) format.
+One integer of a pair can be missing (\-N can be used to specify all characters with codes less
+or equal to N, and N\- for all characters with codes greather or equal to N).
+Multiple \fB\-i\fP and \fB\-x\fP options can be used.
+.SH EXAMPLES
+.RI "Make PDF samples for " font.ttf " and write them to file " samples.pdf :
+.SAMPLE
+fntsample \-f font.ttf \-o samples.pdf
+.ESAMPLE
+.PP
+.RI "Make PDF samples for " font.ttf ", compare it with " oldfont.ttf 
+.RI "and highlight new glyphs. Write output to file " samples.pdf :
+.SAMPLE
+fntsample \-f font.ttf \-d oldfont.ttf \-o samples.pdf
+.ESAMPLE
+.PP
+.RI "Make PostScript samples for " font.ttf " and write output to file " samples.ps .
+Show only glyphs for characters with codes less or equal to U+04FF but exclude U+0370\-U+03FF:
+.SAMPLE
+fntsample \-f font.ttf \-s \-o samples.ps \-i \-0x04FF \-x 0x0370\-0x03FF
+.ESAMPLE
+.PP
+.RI "Make PDF samples for " font.ttf " and save output to file " samples.pdf " adding outlines to it:"
+.SAMPLE
+fntsample \-f font.ttf \-o temp.pdf \-l > outlines.txt
+pdfoutline temp.pdf outlines.txt samples.pdf
+.ESAMPLE
+.SH AUTHOR
+Copyright \(co 2007 Eugeniy Meshcheryakov <eugen@debian.org>
+.br
+Homepage: <http://fntsample.sourceforge.net/>
+.SH SEE ALSO
+.PP
+.BR pdfoutline (1)

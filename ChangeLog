@@ -1,0 +1,52 @@
+Changes in version 3.2:
+	* Add support for SVG output (works correctly only for single page output)
+
+Changes in version 3.1:
+	* Add support for files that contain multiple fonts, like
+	  TrueType Collections (.ttc)
+	* Link with libm to avoid compilation failure with gold linker
+	* Use silent-rules feature of automake 1.11
+
+Changes in version 3.0:
+	* Make it buildable with mawk again.
+	* Switch to GPLv3.
+	* Added localization support using gettext.
+	* Added Ukrainian translation.
+	* Added font scaling for fonts with large vertical metrics,
+	  to better work with fonts like TibetanMachine
+
+Changes in version 2.8:
+	* It is now possible to use file Blocks.txt with dos line endings,
+	  like in zipped Unicode 5.1 UCD.
+
+Changes in version 2.7:
+	* configure now checks for pangocairo >= 1.16, older pango does not
+	  have pango_layout_get_line_readonly() required by fntsample
+	* Fixed crash (segmentation fault) with some values for -i (and maybe
+	  -x)
+
+Changes in version 2.6:
+	* pango is now used for drawing headers and numbers in font samples
+	* Font sizes are now tunable using "--style" option. Default font
+	  size for digits was made smaller for better look with fonts containing
+	  glyphs outside BMP
+
+Changes in version 2.5:
+	* Added support for compiling with non-default fontconfig location
+	* Added support for long options
+	* Made some optimizations to text layout, this should make generated
+	  PDFs smaller
+	* Added options for selecting Unicode ranges to include in samples
+	  (-i and -x)
+
+Changes in version 2.4:
+	* Added script for making pdf files with bookmarks (pdfoutline) and
+	  option for fntsample to print bookmarks information (-l).
+	  pdfoutline requires perl and PDF::API2 library
+
+Changes in version 2.3:
+	* Added "#include <unistd.h>" to get definition of getopt()
+
+Changes in version 2.2:
+	* Added support for fonts other than TrueType/OpenType
+	* Improved errors handling
