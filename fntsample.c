@@ -53,12 +53,12 @@
 #define CELL_X(x_min, N)	((x_min) + cell_width * ((N) / 16))
 #define CELL_Y(N)	(ymin_border + cell_height * ((N) % 16))
 
-static struct option longopts[] = { { "font-file", 1, 0, 'f' },
-    { "output-file", 1, 0, 'o' }, { "help", 0, 0, 'h' }, { "other-font-file", 1, 0, 'd' },
-    { "postscript-output", 0, 0, 's' }, { "svg", 0, 0, 'g' },
-    { "print-outline", 0, 0, 'l' }, { "include-range", 1, 0, 'i' }, { "exclude-range", 1,
-        0, 'x' }, { "style", 1, 0, 't' }, { "font-index", 1, 0, 'n' }, { "other-index", 1,
-        0, 'm' }, { "ucd-xml-file", 1, 0, 'r' }, { 0, 0, 0, 0 } };
+static struct option longopts[] = { { "font-file", 1, 0, 'f' }, { "output-file",
+    1, 0, 'o' }, { "help", 0, 0, 'h' }, { "other-font-file", 1, 0, 'd' }, {
+    "postscript-output", 0, 0, 's' }, { "svg", 0, 0, 'g' }, { "print-outline",
+    0, 0, 'l' }, { "include-range", 1, 0, 'i' }, { "exclude-range", 1, 0, 'x' },
+    { "style", 1, 0, 't' }, { "font-index", 1, 0, 'n' }, { "other-index", 1, 0,
+        'm' }, { "ucd-xml-file", 1, 0, 'r' }, { 0, 0, 0, 0 } };
 
 struct range {
   uint32_t first;
@@ -85,9 +85,10 @@ struct fntsample_style {
   char *val;
 };
 
-static struct fntsample_style styles[] = { { "header-font", "Sans Bold 12", NULL }, {
-    "font-name-font", "Serif Bold 12", NULL }, { "table-numbers-font", "Sans 10", NULL },
-    { "cell-numbers-font", "Mono 8", NULL }, { NULL, NULL, NULL } };
+static struct fntsample_style styles[] = {
+    { "header-font", "Sans Bold 12", NULL }, { "font-name-font",
+        "Serif Bold 12", NULL }, { "table-numbers-font", "Sans 10", NULL }, {
+        "cell-numbers-font", "Mono 8", NULL }, { NULL, NULL, NULL } };
 
 static PangoFontDescription *header_font;
 static PangoFontDescription *font_name_font;
@@ -319,7 +320,7 @@ static void parse_options(int argc, char * const argv[]) {
         print_outline = true;
         break;
       case 'i':
-        case 'x':
+      case 'x':
         if (add_range(optarg, c == 'i')) {
           usage(argv[0]);
           exit(1);
@@ -345,7 +346,7 @@ static void parse_options(int argc, char * const argv[]) {
         xml_file_name = optarg;
         break;
       case '?':
-        default:
+      default:
         usage(argv[0]);
         exit(1);
         break;
@@ -382,7 +383,8 @@ static const struct unicode_block *get_unicode_block(unsigned long charcode) {
 /*
  * Check if the given character code belongs to the given Unicode block.
  */
-static bool is_in_block(unsigned long charcode, const struct unicode_block *block) {
+static bool is_in_block(unsigned long charcode,
+    const struct unicode_block *block) {
   return ((charcode >= block->start) && (charcode <= block->end));
 }
 
@@ -398,7 +400,8 @@ static void outline(int level, int page, const char *text) {
  * Draw header of a page.
  * Header shows font name and current Unicode block.
  */
-static void draw_header(cairo_t *cr, const char *face_name, const char *block_name) {
+static void draw_header(cairo_t *cr, const char *face_name,
+    const char *block_name) {
   PangoLayout *layout;
   PangoRectangle r;
 
@@ -444,7 +447,8 @@ static void position_glyph(cairo_t *cr, double x, double y, unsigned long idx,
 /*
  * Draw table grid with row and column numbers.
  */
-static void draw_grid(cairo_t *cr, unsigned int x_cells, unsigned long block_start) {
+static void draw_grid(cairo_t *cr, unsigned int x_cells,
+    unsigned long block_start) {
   unsigned int i;
   double x_min = (A4_WIDTH - x_cells * cell_width) / 2;
   double x_max = (A4_WIDTH + x_cells * cell_width) / 2;
@@ -482,12 +486,13 @@ static void draw_grid(cairo_t *cr, unsigned int x_cells, unsigned long block_sta
   for (i = 0; i < 16; i++) {
     buf[0] = hexdigs[i];
     layout = layout_text(cr, table_numbers_font, buf, &r);
-    cairo_move_to(cr, x_min - (double) PANGO_RBEARING(r) /
-        PANGO_SCALE - 5.0, 72.0 + (i + 0.5) * TABLE_H / 16 +
-        (double) PANGO_DESCENT(r) / PANGO_SCALE / 2);
+    cairo_move_to(cr, x_min - (double) PANGO_RBEARING(r) / PANGO_SCALE - 5.0,
+        72.0 + (i + 0.5) * TABLE_H / 16
+            + (double) PANGO_DESCENT(r) / PANGO_SCALE / 2);
     pango_cairo_show_layout_line(cr, pango_layout_get_line_readonly(layout, 0));
-    cairo_move_to(cr, x_min + x_cells * cell_width + 5.0, 72.0 + (i + 0.5) * TABLE_H / 16 +
-        (double) PANGO_DESCENT(r) / PANGO_SCALE / 2);
+    cairo_move_to(cr, x_min + x_cells * cell_width + 5.0,
+        72.0 + (i + 0.5) * TABLE_H / 16
+            + (double) PANGO_DESCENT(r) / PANGO_SCALE / 2);
     pango_cairo_show_layout_line(cr, pango_layout_get_line_readonly(layout, 0));
     g_object_unref(layout);
   }
@@ -495,8 +500,10 @@ static void draw_grid(cairo_t *cr, unsigned int x_cells, unsigned long block_sta
   for (i = 0; i < x_cells; i++) {
     snprintf(buf, sizeof(buf), "%03lX", block_start / 16 + i);
     layout = layout_text(cr, table_numbers_font, buf, &r);
-    cairo_move_to(cr, x_min + i * cell_width + (cell_width -
-        (double) r.width / PANGO_SCALE) / 2, ymin_border - 5.0);
+    cairo_move_to(cr,
+        x_min + i * cell_width
+            + (cell_width - (double) r.width / PANGO_SCALE) / 2,
+        ymin_border - 5.0);
     pango_cairo_show_layout_line(cr, pango_layout_get_line_readonly(layout, 0));
     g_object_unref(layout);
   }
@@ -505,7 +512,8 @@ static void draw_grid(cairo_t *cr, unsigned int x_cells, unsigned long block_sta
 /*
  * Fill empty cell. Color of the fill depends on the character properties.
  */
-static void fill_empty_cell(cairo_t *cr, double x, double y, unsigned long charcode) {
+static void fill_empty_cell(cairo_t *cr, double x, double y,
+    unsigned long charcode) {
   cairo_save(cr);
   if (g_unichar_isdefined(charcode)) {
     if (g_unichar_iscntrl(charcode))
@@ -527,8 +535,8 @@ static void draw_charcode(cairo_t *cr, double x, double y, FT_ULong charcode) {
 
   snprintf(buf, sizeof(buf), "%04lX", charcode);
   layout = layout_text(cr, cell_numbers_font, buf, &r);
-  cairo_move_to(cr, x + (cell_width - (double) r.width / PANGO_SCALE) / 2.0, y +
-      cell_height - cell_label_offset);
+  cairo_move_to(cr, x + (cell_width - (double) r.width / PANGO_SCALE) / 2.0,
+      y + cell_height - cell_label_offset);
   pango_cairo_show_layout_line(cr, pango_layout_get_line_readonly(layout, 0));
   g_object_unref(layout);
 }
@@ -542,9 +550,9 @@ static void draw_charcode(cairo_t *cr, double x, double y, FT_ULong charcode) {
  *
  * Returns number of pages drawn.
  */
-static int draw_unicode_block(cairo_t *cr, cairo_scaled_font_t *font, FT_Face ft_face,
-    const char *fontname, unsigned long *charcode, const struct unicode_block *block,
-    FT_Face ft_other_face) {
+static int draw_unicode_block(cairo_t *cr, cairo_scaled_font_t *font,
+    FT_Face ft_face, const char *fontname, unsigned long *charcode,
+    const struct unicode_block *block, FT_Face ft_other_face) {
   FT_UInt idx;
   unsigned long prev_charcode;
   unsigned long prev_cell;
@@ -593,7 +601,8 @@ static int draw_unicode_block(cairo_t *cr, cairo_scaled_font_t *font, FT_Face ft
 
       /* For now just position glyphs. They will be shown later,
        * to make output more efficient. */
-      position_glyph(cr, CELL_X(x_min, charpos), CELL_Y(charpos), idx, &glyphs[nglyphs++]);
+      position_glyph(cr, CELL_X(x_min, charpos), CELL_Y(charpos), idx,
+          &glyphs[nglyphs++]);
 
       filled_cells[charpos] = true;
 
@@ -644,6 +653,7 @@ static int draw_unicode_block(cairo_t *cr, cairo_scaled_font_t *font, FT_Face ft
 #define OFFSET_SPACE    5.0
 #define COORD_X(factor) xmin_border + OFFSET_BASE + factor * (COLUMN_WIDTH - xmin_border - OFFSET_BASE)
 #define WRAP_LIMIT(val) (COLUMN_WIDTH - val) * PANGO_SCALE
+#define RES_FACTOR      96.0 / 72.0
 
 /* UTF-8 chars to distinguish different UCD data */
 const unsigned char rightwards_arrow[] = { 0xE2, 0x86, 0x92, 0x0 };
@@ -671,13 +681,9 @@ struct ucd_style {
   const char * const style;
 };
 
-static struct ucd_style ucd_styles[] = {
-    { "notice_line", "Sans Italic 6" },
-    { "block_header", "Sans Bold 12" },
-    { "block_subheader", "Sans Bold 9" },
-    { "other", "Serif 7" },
-    { NULL, NULL }
-};
+static struct ucd_style ucd_styles[] = { { "notice_line", "Sans Italic 6" }, {
+    "block_header", "Sans Bold 11" }, { "block_subheader", "Sans Bold 9" }, {
+    "other", "Serif 7" }, { NULL, NULL } };
 
 static const char const *get_ucd_style(const char *name) {
   struct ucd_style *style = ucd_styles;
@@ -692,9 +698,12 @@ static const char const *get_ucd_style(const char *name) {
 
 /* Initialize all fonts needed for generating UCD comments */
 static void init_ucd_fonts(void) {
-  block_header_font = pango_font_description_from_string(get_ucd_style("block_header"));
-  subheader_font = pango_font_description_from_string(get_ucd_style("block_subheader"));
-  notice_line_font = pango_font_description_from_string(get_ucd_style("notice_line"));
+  block_header_font = pango_font_description_from_string(
+      get_ucd_style("block_header"));
+  subheader_font = pango_font_description_from_string(
+      get_ucd_style("block_subheader"));
+  notice_line_font = pango_font_description_from_string(
+      get_ucd_style("notice_line"));
   other_font = pango_font_description_from_string(get_ucd_style("other"));
 }
 
@@ -714,11 +723,12 @@ static double get_pango_layout_width_and_free(PangoLayout *layout) {
   return (double) width / PANGO_SCALE;
 }
 
-/* Draw basic text in the layout with given font and wrap it (optional) */
+/* Draw basic text in the layout with the given font and wrap it (optional) */
 static PangoLayout *draw_ucd_text(cairo_t *cr, const char *text,
     PangoFontDescription *font, int wrap_width) {
   PangoLayout *layout = layout_text(cr, font, text, NULL);
-  pango_layout_set_width(layout, wrap_width != -1.0 ? WRAP_LIMIT(wrap_width) : -1.0);
+  pango_layout_set_width(layout,
+      wrap_width != -1.0 ? WRAP_LIMIT(wrap_width) : -1.0);
   pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
   pango_cairo_show_layout(cr, layout);
   return layout;
@@ -749,24 +759,28 @@ static PangoLayout *draw_ucd_charcode(cairo_t *cr, PangoFontDescription *font,
 }
 
 /* Draw the first and the last character code drawn at the current page */
-static void draw_ucd_char_limits(cairo_t *cr, FT_ULong leftLimit, FT_ULong rightLimit) {
+static void draw_ucd_char_limits(cairo_t *cr, FT_ULong leftLimit,
+    FT_ULong rightLimit) {
   PangoLayout *layout;
   double width;
 
   /* Draw left char code and get its width */
-  layout = draw_ucd_charcode(cr, block_header_font, leftLimit, xmin_border, BLOCK_HEADER_Y);
+  layout = draw_ucd_charcode(cr, block_header_font, leftLimit, xmin_border,
+      BLOCK_HEADER_Y);
   width = get_pango_layout_width_and_free(layout);
 
   /* Draw right char code */
-  layout = draw_ucd_charcode(cr, block_header_font, rightLimit, A4_WIDTH - xmin_border - width, BLOCK_HEADER_Y);
+  layout =
+      draw_ucd_charcode(cr, block_header_font, rightLimit,
+          A4_WIDTH - xmin_border - width, BLOCK_HEADER_Y);
   g_object_unref(layout);
 }
 
 /*
  * Draw properties of character entries, subheaders or blocks
  */
-static PangoLayout *draw_ucd_tag(cairo_t *cr, const struct simple_tag * const tag,
-    double x, double y, double offset) {
+static PangoLayout *draw_ucd_tag(cairo_t *cr,
+    const struct simple_tag * const tag, double x, double y, double offset) {
   PangoLayout *layout = NULL;
   double width;
 
@@ -790,11 +804,13 @@ static PangoLayout *draw_ucd_tag(cairo_t *cr, const struct simple_tag * const ta
 
     /* Draw text, free memory if needed */
     if (text) {
-      layout = draw_ucd_text(cr, text, notice_line_font, xmin_border + OFFSET_BASE);
+      layout = draw_ucd_text(cr, text, notice_line_font,
+          xmin_border + OFFSET_BASE);
       free(text);
     }
     else {
-      layout = draw_ucd_text(cr, tag->content, notice_line_font, xmin_border + OFFSET_BASE);
+      layout = draw_ucd_text(cr, tag->content, notice_line_font,
+          xmin_border + OFFSET_BASE);
     }
 
     return layout;
@@ -860,7 +876,8 @@ static PangoLayout *draw_ucd_tag(cairo_t *cr, const struct simple_tag * const ta
 
   width = get_pango_layout_width_and_free(layout);
   cairo_move_to(cr, x + width, y);
-  layout = draw_ucd_text(cr, tag->content, other_font, xmin_border + OFFSET_BASE + offset + width);
+  layout = draw_ucd_text(cr, tag->content, other_font,
+      xmin_border + OFFSET_BASE + offset + width);
 
   return layout;
 }
@@ -894,7 +911,8 @@ static void check_and_update_coords(cairo_t *cr, double *factor, double *coordY,
   /* If new page has been drawn show header and limits */
   if (*coordY == BASE_Y) {
     /* If new page added - draw the header's name and code points limits */
-    double height = get_pango_layout_height_and_free(draw_ucd_block_header(cr, block->name));
+    double height = get_pango_layout_height_and_free(
+        draw_ucd_block_header(cr, block->name));
 
     /* Update the y coordinate */
     *coordY += height;
@@ -911,8 +929,9 @@ static void check_and_update_coords(cairo_t *cr, double *factor, double *coordY,
  *   last - the last drawn character at this page
  *   bl - the header block (the current one)
  */
-static void draw_ucd_simple_tags(cairo_t *cr, struct simple_tag *tags, double *multFactor,
-    double x, double *y, FT_ULong *first, FT_ULong *last, const struct header_block *bl) {
+static void draw_ucd_simple_tags(cairo_t *cr, struct simple_tag *tags,
+    double *multFactor, double x, double *y, FT_ULong *first, FT_ULong *last,
+    const struct header_block *bl) {
   PangoLayout *layout;
   const struct simple_tag *smpl_tags;
 
@@ -925,32 +944,6 @@ static void draw_ucd_simple_tags(cairo_t *cr, struct simple_tag *tags, double *m
   }
 }
 
-/* Encode to UTF-8 (from http://www.cprogramming.com/tutorial/unicode.html) */
-void u8_wc_toutf8(char *dest, u_int32_t ch) {
-  if (ch < 0x80) {
-    dest[0] = (char) ch;
-    dest[1] = '\0';
-  }
-  else if (ch < 0x800) {
-    dest[0] = (ch >> 6) | 0xC0;
-    dest[1] = (ch & 0x3F) | 0x80;
-    dest[2] = '\0';
-  }
-  else if (ch < 0x10000) {
-    dest[0] = (ch >> 12) | 0xE0;
-    dest[1] = ((ch >> 6) & 0x3F) | 0x80;
-    dest[2] = (ch & 0x3F) | 0x80;
-    dest[3] = '\0';
-  }
-  else if (ch < 0x110000) {
-    dest[0] = (ch >> 18) | 0xF0;
-    dest[1] = ((ch >> 12) & 0x3F) | 0x80;
-    dest[2] = ((ch >> 6) & 0x3F) | 0x80;
-    dest[3] = (ch & 0x3F) | 0x80;
-    dest[4] = '\0';
-  }
-}
-
 /* Draw a char entry (code point, char, name)
  *
  * Parameters:
@@ -960,47 +953,84 @@ void u8_wc_toutf8(char *dest, u_int32_t ch) {
  *   last - the last drawn character at this page
  *   block - the header block (the current one)
  */
-static void draw_ucd_char_entry(cairo_t *cr, const struct char_entry *entry,
-    double *multFactor, double *width, double *coordY, FT_ULong *first, FT_ULong *last,
-    const struct header_block *block) {
+static void draw_ucd_char_entry(cairo_t *cr, FT_Face ft_face,
+    cairo_scaled_font_t *font, const struct char_entry *entry,
+    double *multFactor, double *width, double *coordY, FT_ULong *first,
+    FT_ULong *last, const struct header_block *block) {
   PangoLayout *layout;
-  double temp_width;
-  char dest[5];
+  double temp_width, text_height;
+  int tempH;
+  FT_UInt idx = FT_Get_Char_Index(ft_face, (FT_ULong) entry->cp);
+  cairo_glyph_t glyphs[1];
+  cairo_matrix_t matrix;
+  cairo_font_extents_t extents;
 
+  // Draw charcode
   check_and_update_coords(cr, multFactor, coordY, block, first, last);
-  layout = draw_ucd_charcode(cr, other_font, entry->cp, COORD_X(*multFactor), *coordY);
+  layout = draw_ucd_charcode(cr, other_font, entry->cp, COORD_X(*multFactor),
+      *coordY);
+
+  // Get the height of the comments' text
+  pango_layout_get_size(layout, NULL, &tempH);
+  text_height = ((double) tempH) / PANGO_SCALE;
+  text_height = text_height * RES_FACTOR;
+  // Get the width and release the layout
   temp_width = get_pango_layout_width_and_free(layout);
 
   if (entry->name) {
-    /* Try to draw sign */
-    u8_wc_toutf8(dest, entry->cp);
-    cairo_move_to(cr, COORD_X(*multFactor) + OFFSET_SPACE + temp_width, *coordY);
-    layout = draw_ucd_text(cr, dest, other_font, -1.0);
-    *width = get_pango_layout_width_and_free(layout) + temp_width;
+    cairo_save(cr);
+    cairo_set_scaled_font(cr, font);
+    cairo_get_font_matrix(cr, &matrix);
+    cairo_font_extents(cr, &extents);
+    cairo_matrix_scale(&matrix, text_height / extents.height,
+        text_height / extents.height);
+    cairo_set_font_matrix(cr, &matrix);
 
-    cairo_move_to(cr, COORD_X(*multFactor) + 2.0 * OFFSET_SPACE + *width, *coordY);
-    layout = draw_ucd_text(cr, entry->name, other_font, xmin_border + OFFSET_BASE);
+    /* Try to draw sign */
+    glyphs[0] =
+        (cairo_glyph_t) {idx, COORD_X(*multFactor) + OFFSET_SPACE + temp_width, *coordY + text_height / 2.0};
+    cairo_show_glyphs(cr, glyphs, 1);
+    *width = 2.0 * OFFSET_SPACE + temp_width;
+
+    // Show the name of the char
+    cairo_move_to(cr, COORD_X(*multFactor) + OFFSET_SPACE + *width, *coordY);
+    layout = draw_ucd_text(cr, entry->name, other_font,
+        xmin_border + OFFSET_BASE);
     *width = 2.0 * OFFSET_SPACE + *width;
+    cairo_restore(cr);
   }
   else {
     *width = temp_width;
     cairo_move_to(cr, COORD_X(*multFactor) + OFFSET_SPACE + *width, *coordY);
-    char *text = malloc(snprintf(NULL, 0, "%s%s%s", less_than, entry->type, greater_than) + 1);
+    char *text = malloc(
+        snprintf(NULL, 0, "%s%s%s", less_than, entry->type, greater_than) + 1);
     sprintf(text, "%s%s%s", less_than, entry->type, greater_than);
-    layout = draw_ucd_text(cr, text, other_font, xmin_border + OFFSET_BASE + OFFSET_SPACE);
+    layout = draw_ucd_text(cr, text, other_font,
+        xmin_border + OFFSET_BASE + OFFSET_SPACE);
     *width = OFFSET_SPACE + *width;
     free(text);
   }
   *coordY += get_pango_layout_height_and_free(layout);
 }
 
+static int glyphs_can_be_drawn(FT_Face ft_face, struct char_entry *entry) {
+  struct char_entry *temp = entry;
+  for (; temp; temp = temp->next) {
+    if ((FT_Get_Char_Index(ft_face, (FT_ULong) temp->cp) && temp->name) || !temp->name) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
 /*
  * The main function of drawing UCD comments. It takes the character code and depending
  * on the value chooses the actual block header.
  */
-static void draw_ucd_data(cairo_t *cr, const FT_ULong charcode) {
+static void draw_ucd_data(cairo_t *cr, FT_Face ft_face,
+    cairo_scaled_font_t *font, const FT_ULong charcode) {
   PangoLayout *layout;
-  double height, width;
+  double height = 0.0, width = 0.0;
   double multFactor = 0.0; /* Draw text in the first column (0.0) or the second one (1.0) */
   double coordY = BASE_Y; /* Coordinate Y */
 
@@ -1015,32 +1045,36 @@ static void draw_ucd_data(cairo_t *cr, const FT_ULong charcode) {
 
   if (block) {
     /* Draw all tags connected with this block header (notice lines, cross references, etc.) */
-    draw_ucd_simple_tags(cr, block->outer_tags, &multFactor, 0.0, &coordY, &drawnFirst,
-        &drawnLast, block);
+    draw_ucd_simple_tags(cr, block->outer_tags, &multFactor, 0.0, &coordY,
+        &drawnFirst, &drawnLast, block);
 
-    for (sub_block = block->subheaders; sub_block; sub_block = sub_block->next) {
+    for (sub_block = block->subheaders; sub_block; sub_block =
+        sub_block->next) {
       /* Do not draw comment if not in range */
-      if (!in_range(sub_block->start) && !in_range(sub_block->end))
+      if ((!in_range(sub_block->start) && !in_range(sub_block->end)) || glyphs_can_be_drawn(ft_face, sub_block->chars) == 1)
         continue;
 
       /* Draw subheader name and update the 'y' coordinate */
-      check_and_update_coords(cr, &multFactor, &coordY, block, &drawnFirst, &drawnLast);
+      check_and_update_coords(cr, &multFactor, &coordY, block, &drawnFirst,
+          &drawnLast);
       cairo_move_to(cr, COORD_X(multFactor), coordY);
-      layout = draw_ucd_text(cr, sub_block->name, subheader_font, xmin_border + OFFSET_BASE);
+      layout = draw_ucd_text(cr, sub_block->name, subheader_font,
+          xmin_border + OFFSET_BASE);
       height = get_pango_layout_height_and_free(layout);
       coordY += height + 1.0;
 
       /* Draw all tags connected with this subheader (notice lines, cross references, etc.) */
-      draw_ucd_simple_tags(cr, sub_block->outer_tags, &multFactor, 0.0, &coordY, &drawnFirst,
-          &drawnLast, block);
+      draw_ucd_simple_tags(cr, sub_block->outer_tags, &multFactor, 0.0, &coordY,
+          &drawnFirst, &drawnLast, block);
 
       /* Draw all char entries from this block */
       for (entry = sub_block->chars; entry; entry = entry->next) {
         /* Do not draw comment if not in range */
-        if (!in_range(entry->cp))
+        if (!in_range(entry->cp) || (!FT_Get_Char_Index(ft_face, (FT_ULong) entry->cp) && entry->name))
           continue;
 
-        draw_ucd_char_entry(cr, entry, &multFactor, &width, &coordY, &drawnFirst, &drawnLast, block);
+        draw_ucd_char_entry(cr, ft_face, font, entry, &multFactor, &width,
+            &coordY, &drawnFirst, &drawnLast, block);
 
         /* Update values of the first char (only at the beginning) and the last one (always) */
         if (drawnFirst == -1UL) {
@@ -1102,12 +1136,13 @@ static void draw_glyphs(cairo_t *cr, cairo_scaled_font_t *font, FT_Face ft_face,
     if (block) {
       int npages;
       outline(1, pageno, block->name);
-      npages = draw_unicode_block(cr, font, ft_face, fontname, &charcode, block, ft_other_face);
+      npages = draw_unicode_block(cr, font, ft_face, fontname, &charcode, block,
+          ft_other_face);
       pageno += npages;
 
       /* Draw comments */
       if (xml_file_name && ucd_blocks) {
-        draw_ucd_data(cr, charcode);
+        draw_ucd_data(cr, ft_face, font, charcode);
       }
     }
     charcode = get_next_char(ft_face, charcode, &idx);
@@ -1122,20 +1157,21 @@ static void usage(const char *cmd) {
 
   fprintf(stderr, _("Usage: %s [ OPTIONS ] -f FONT-FILE -o OUTPUT-FILE\n"
       "       %s -h\n\n"), cmd, cmd);
-  fprintf(stderr, _("Options:\n"
-      "  --font-file,         -f FONT-FILE    Create samples of FONT-FILE\n"
-      "  --font-index,        -n IDX          Font index in FONT-FILE\n"
-      "  --output-file,       -o OUTPUT-FILE  Save samples to OUTPUT-FILE\n"
-      "  --help,              -h              Show this information message and exit\n"
-      "  --other-font-file,   -d OTHER-FONT   Compare FONT-FILE with OTHER-FONT and highlight added glyphs\n"
-      "  --other-index,       -m IDX          Font index in OTHER-FONT\n"
-      "  --postscript-output, -s              Use PostScript format for output instead of PDF\n"
-      "  --svg,               -g              Use SVG format for output\n"
-      "  --print-outline,     -l              Print document outlines data to standard output\n"
-      "  --include-range,     -i RANGE        Show characters in RANGE\n"
-      "  --exclude-range,     -x RANGE        Do not show characters in RANGE\n"
-      "  --ucd-xml-file,      -r XML_FILE     UCD data in XML_FILE\n"
-      "  --style,             -t \"STYLE: VAL\" Set STYLE to value VAL\n"));
+  fprintf(stderr,
+      _("Options:\n"
+          "  --font-file,         -f FONT-FILE    Create samples of FONT-FILE\n"
+          "  --font-index,        -n IDX          Font index in FONT-FILE\n"
+          "  --output-file,       -o OUTPUT-FILE  Save samples to OUTPUT-FILE\n"
+          "  --help,              -h              Show this information message and exit\n"
+          "  --other-font-file,   -d OTHER-FONT   Compare FONT-FILE with OTHER-FONT and highlight added glyphs\n"
+          "  --other-index,       -m IDX          Font index in OTHER-FONT\n"
+          "  --postscript-output, -s              Use PostScript format for output instead of PDF\n"
+          "  --svg,               -g              Use SVG format for output\n"
+          "  --print-outline,     -l              Print document outlines data to standard output\n"
+          "  --include-range,     -i RANGE        Show characters in RANGE\n"
+          "  --exclude-range,     -x RANGE        Do not show characters in RANGE\n"
+          "  --ucd-xml-file,      -r XML_FILE     UCD data in XML_FILE\n"
+          "  --style,             -t \"STYLE: VAL\" Set STYLE to value VAL\n"));
   fprintf(stderr, _("\nSupported styles (and default values):\n"));
   for (style = styles; style->name; style++)
     fprintf(stderr, "\t%s (%s)\n", style->name, style->default_val);
@@ -1199,14 +1235,18 @@ static const char *get_font_name(FT_Face face) {
  */
 static void init_pango_fonts(void) {
   /* FIXME is this correct? */
-  PangoCairoFontMap *map = (PangoCairoFontMap *) pango_cairo_font_map_get_default();
+  PangoCairoFontMap *map =
+      (PangoCairoFontMap *) pango_cairo_font_map_get_default();
 
   pango_cairo_font_map_set_resolution(map, 72.0);
 
   header_font = pango_font_description_from_string(get_style("header-font"));
-  font_name_font = pango_font_description_from_string(get_style("font-name-font"));
-  table_numbers_font = pango_font_description_from_string(get_style("table-numbers-font"));
-  cell_numbers_font = pango_font_description_from_string(get_style("cell-numbers-font"));
+  font_name_font = pango_font_description_from_string(
+      get_style("font-name-font"));
+  table_numbers_font = pango_font_description_from_string(
+      get_style("table-numbers-font"));
+  cell_numbers_font = pango_font_description_from_string(
+      get_style("cell-numbers-font"));
 }
 
 /*
@@ -1215,7 +1255,8 @@ static void init_pango_fonts(void) {
 static void calculate_offsets(cairo_t *cr) {
   PangoRectangle extents;
   /* Assume that vertical extents does not depend on actual text */
-  PangoLayout *l = layout_text(cr, cell_numbers_font, "0123456789ABCDEF", &extents);
+  PangoLayout *l = layout_text(cr, cell_numbers_font, "0123456789ABCDEF",
+      &extents);
   g_object_unref(l);
   /* Unsolved mistery of pango's font metrics.... */
   double digits_ascent = pango_units_to_double(PANGO_DESCENT(extents));
@@ -1229,7 +1270,8 @@ static void calculate_offsets(cairo_t *cr) {
  * Create cairo scaled font with the best size (hopefuly...)
  */
 static cairo_scaled_font_t *create_default_font(FT_Face ft_face) {
-  cairo_font_face_t *cr_face = cairo_ft_font_face_create_for_ft_face(ft_face, 0);
+  cairo_font_face_t *cr_face = cairo_ft_font_face_create_for_ft_face(ft_face,
+      0);
   cairo_matrix_t font_matrix;
   cairo_matrix_t ctm;
   cairo_font_options_t *options = cairo_font_options_create();
@@ -1247,12 +1289,14 @@ static cairo_scaled_font_t *create_default_font(FT_Face ft_face) {
   /* Use some magic to find the best font size... */
   double tgt_size = cell_height - cell_glyph_bot_offset - 2;
   if (tgt_size <= 0) {
-    fprintf(stderr, _("Not enough space for rendering glyphs. Make cell font smaller.\n"));
+    fprintf(stderr,
+        _("Not enough space for rendering glyphs. Make cell font smaller.\n"));
     exit(5);
   }
   double act_size = extents.ascent + extents.descent;
   if (act_size <= 0) {
-    fprintf(stderr, _("The font has strange metrics: ascent + descent = %g\n"), act_size);
+    fprintf(stderr, _("The font has strange metrics: ascent + descent = %g\n"),
+        act_size);
     exit(5);
   }
   double scale = tgt_size / act_size;
@@ -1267,7 +1311,8 @@ static cairo_scaled_font_t *create_default_font(FT_Face ft_face) {
   cairo_matrix_init_scale(&font_matrix, scale, scale);
   cr_font = cairo_scaled_font_create(cr_face, &font_matrix, &ctm, options);
   cairo_scaled_font_extents(cr_font, &extents);
-  glyph_baseline_offset = (tgt_size - (extents.ascent + extents.descent)) / 2 + 2 + extents.ascent;
+  glyph_baseline_offset = (tgt_size - (extents.ascent + extents.descent)) / 2
+      + 2 + extents.ascent;
   return cr_font;
 }
 
@@ -1296,14 +1341,16 @@ int main(int argc, char **argv) {
 
   error = FT_New_Face(library, font_file_name, font_index, &face);
   if (error) {
-    fprintf(stderr, _("%s: failed to open font file %s\n"), argv[0], font_file_name);
+    fprintf(stderr, _("%s: failed to open font file %s\n"), argv[0],
+        font_file_name);
     exit(4);
   }
 
   fontname = get_font_name(face);
 
   if (other_font_file_name) {
-    error = FT_New_Face(library, other_font_file_name, other_index, &other_face);
+    error = FT_New_Face(library, other_font_file_name, other_index,
+        &other_face);
     if (error) {
       fprintf(stderr, _("%s: failed to create new font face\n"), argv[0]);
       exit(4);
@@ -1314,19 +1361,22 @@ int main(int argc, char **argv) {
     surface = cairo_ps_surface_create(output_file_name, A4_WIDTH, A4_HEIGHT);
   else if (svg_output)
     surface = cairo_svg_surface_create(output_file_name, A4_WIDTH, A4_HEIGHT);
-  else surface = cairo_pdf_surface_create(output_file_name, A4_WIDTH, A4_HEIGHT); /* A4 paper */
+  else surface = cairo_pdf_surface_create(output_file_name, A4_WIDTH,
+      A4_HEIGHT); /* A4 paper */
 
   cr_status = cairo_surface_status(surface);
   if (cr_status != CAIRO_STATUS_SUCCESS) {
     /* TRANSLATORS: 'cairo' is a name of a library, and should be left untranslated */
-    fprintf(stderr, _("%s: failed to create cairo surface: %s\n"), argv[0], cairo_status_to_string(cr_status));
+    fprintf(stderr, _("%s: failed to create cairo surface: %s\n"), argv[0],
+        cairo_status_to_string(cr_status));
     exit(1);
   }
 
   cr = cairo_create(surface);
   cr_status = cairo_status(cr);
   if (cr_status != CAIRO_STATUS_SUCCESS) {
-    fprintf(stderr, _("%s: cairo_create failed: %s\n"), argv[0], cairo_status_to_string(cr_status));
+    fprintf(stderr, _("%s: cairo_create failed: %s\n"), argv[0],
+        cairo_status_to_string(cr_status));
     exit(1);
   }
 
@@ -1337,7 +1387,8 @@ int main(int argc, char **argv) {
   cr_font = create_default_font(face);
   cr_status = cairo_scaled_font_status(cr_font);
   if (cr_status != CAIRO_STATUS_SUCCESS) {
-    fprintf(stderr, _("%s: failed to create scaled font: %s\n"), argv[0], cairo_status_to_string(cr_status));
+    fprintf(stderr, _("%s: failed to create scaled font: %s\n"), argv[0],
+        cairo_status_to_string(cr_status));
     exit(1);
   }
 
